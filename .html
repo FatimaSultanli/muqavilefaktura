@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <title>Müqavilə faktura yaratmaq</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      font-size: 24px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background-color: #fff;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .form-panel {
+      background-color: #fff;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .form-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+    .form-row label {
+      flex: 1;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Müqavilə faktura yaratmaq</h1>
+  <button onclick="togglePanel()">Əlavə et</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Müqavilə kodu</th>
+        <th>Əməliyyat tarixi</th>
+        <th>Qəbz tarixi</th>
+        <th>Şəxs</th>
+        <th>Şirkət</th>
+        <th>Rəsmi şirkət</th>
+        <th>Müqavilə növü</th>
+        <th>Paket növü</th>
+        <th>Xüsusi qeyd</th>
+        <th>Düzəliş etmək</th>
+      </tr>
+    </thead>
+    <tbody id="invoiceTable">
+      <!-- Yeni məlumatlar buraya əlavə olunacaq -->
+    </tbody>
+  </table>
+
+  <div class="form-panel" id="panel" style="display:none">
+    <div class="form-row">
+      <label>
+        Şəxsi seç:
+        <select id="person"><option>Ad seçin</option><option>Elvin Məmmədov</option><option>Aysel Həsənova</option></select>
+      </label>
+      <label>
+        Qəbz tarixini seç:
+        <input type="date" id="receiptDate">
+      </label>
+    </div>
+    <div class="form-row">
+      <label>
+        Şirkəti seç:
+        <select id="company"><option>Şirkət seçin</option><option>ABC MMC</option><option>XYZ LTD</option></select>
+      </label>
+      <label>
+        Müqavilə növünü seç:
+        <select id="contractType"><option>Növ seçin</option><option>İllik</option><option>Aylıq</option></select>
+      </label>
+    </div>
+    <div class="form-row">
+      <label>
+        Rəsmi şirkəti seç:
+        <select id="officialCompany"><option>Rəsmi seçin</option><option>Rəsmi A</option><option>Rəsmi B</option></select>
+      </label>
+      <label>
+        Paket növü:
+        <input type="text" id="packageType">
+      </label>
+    </div>
+    <div class="form-row">
+      <label>
+        Məbləğ:
+        <input type="number" id="amount" min="0">
+      </label>
+      <label>
+        Xüsusi qeyd:
+        <textarea rows="2" id="note"></textarea>
+      </label>
+    </div>
+    <button onclick="addInvoice()">Təsdiqlə</button>
+  </div>
+
+  <script>
+    function togglePanel() {
+      const panel = document.getElementById('panel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function addInvoice() {
+      const table = document.getElementById('invoiceTable');
+      const row = document.createElement('tr');
+
+      const contractCode = 'MQ-' + Math.floor(Math.random() * 10000); // Random kod
+      const operationDate = new Date().toISOString().split('T')[0];
+      const receiptDate = document.getElementById('receiptDate').value;
+      const person = document.getElementById('person').value;
+      const company = document.getElementById('company').value;
+      const officialCompany = document.getElementById('officialCompany').value;
+      const contractType = document.getElementById('contractType').value;
+      const packageType = document.getElementById('packageType').value;
+      const amount = document.getElementById('amount').value;
+      const note = document.getElementById('note').value;
+
+      row.innerHTML = `
+        <td>${contractCode}</td>
+        <td>${operationDate}</td>
+        <td>${receiptDate}</td>
+        <td>${person}</td>
+        <td>${company}</td>
+        <td>${officialCompany}</td>
+        <td>${contractType}</td>
+        <td>${packageType}</td>
+        <td>${note}</td>
+        <td><button>Düzəliş et</button></td>
+      `;
+
+      table.appendChild(row);
+      togglePanel(); // paneli bağla
+    }
+  </script>
+</body>
+</html>
