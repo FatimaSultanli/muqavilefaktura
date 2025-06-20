@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <title>Müqavilə faktura yaratmaq</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
+    h1 { font-size: 24px; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background-color: #fff; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background-color: #f0f0f0; }
+    button { background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; font-size: 14px; padding: 8px 12px; }
+    button:hover { background-color: #0056b3; }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+    .modal.active { display: flex; }
+    .modal-content { background-color: #fff; padding: 20px; border-radius: 8px; width: 80%; max-width: 900px; max-height: 90%; overflow-y: auto; }
+
+    .form-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px; }
+    .form-panel label { display: flex; flex-direction: column; font-size: 14px; }
+    .form-panel input,
+    .form-panel select,
+    .form-panel textarea { margin-top: 4px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; background-color: #fffefb; }
+    .wide { grid-column: span 2; }
+    .small-tab { font-size: 12px; padding: 4px 8px; }
+    .small-label { font-size: 12px; }
+
+    #termsPanel { display: none; grid-column: span 2; border: 1px solid #ccc; padding: 10px; background: #fafafa; border-radius: 4px; margin-top: 10px; }
+    #termsTable { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+    #termsTable th, #termsTable td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+    #termsTable th { background: #eee; }
+
+    .panel-footer { text-align: right; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Müqavilə faktura yaratmaq</h1>
+  <button id="openModalBtn">Əlavə et</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Kod</th>
+        <th>Əməliyyat tarixi</th>
+        <th>Qəbz tarixi</th>
+        <th>Şəxs</th>
+        <th>Şirkət</th>
+        <th>Rəsmi şirkət</th>
+        <th>Növ</th>
+        <th>Məhsul növü</th>
+        <th>Xidmət</th>
+        <th>Qeyd</th>
+        <th>Total</th>
+        <th>Şərtlər</th>
+        <th>Düzəliş</th>
+      </tr>
+    </thead>
+    <tbody id="invoiceTable"></tbody>
+  </table>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h2>Yeni Faktura / Müqavilə</h2>
+      <div class="form-panel">
+        <label>Şəxs seç
+          <select id="person">
+            <option>Ad seçin</option>
+            <option>Fatimə Sultanlı</option>
+            <option>Aytac Hüseynova</option>
+            <option>Heydər Əliyev</option>
+            <option>Nigar Bayramova</option>
+            <option>İsmayıl Hüseynzadə</option>
+            <option>Firuzə Əliyeva</option>
+            <option>Yusif Sultanov</option>
+          </select>
+        </label>
+        <label>Qəbz tarixi
+          <input type="date" id="receiptDate">
+        </label>
+
+        <label>Şirkət seç
+          <select id="company">
+            <option>Şirkət seçin</option>
+            <option>ABC MMC</option>
+            <option>XYZ LTD</option>
+          </select>
+        </label>
+        <label>Rəsmi şirkət
+          <select id="officialCompany">
+            <option>Rəsmi seçin</option>
+            <option>Rəsmi A</option>
+            <option>Rəsmi B</option>
+          </select>
+        </label>
+
+        <label>Müqavilə Növü
+          <select id="contractType">
+            <option>MÜqavilə Növü seçin</option>
+            <option>Növ1</option>
+            <option>Növ2</option>
+            <option>Növ3</option>
+          </select>
+        </label>
+        <label>Məhsul növü
+          <select id="packageType">
+            <option>Məhsulu seçin</option>
+            <option>Məhsul növü1</option><option>Məhsul növü2</option><option>Məhsul növü3</option>
+            <option>Məhsul növü4</option><option>Məhsul növü5</option>
+          </select>
+        </label>
+
+        <label>Xidmət seç
+          <select id="service">
+            <option>Seçin</option>
+            <option>Xidmət A</option>
+            <option>Xidmət B</option>
+            <option>Xidmət C</option>
+          </select>
+        </label>
+        <label class="small-label">Xüsusi qeyd
+          <textarea id="note" rows="2"></textarea>
+        </label>
+
+        <label class="wide">Total məbləğ
+          <input type="number" id="totalAmount" min="0">
+        </label>
+        <label>
+          <button id="termsBtn" class="small-tab">Məbləğ şərtləri</button>
+        </label>
+
+        <div id="termsPanel">
+          <table id="termsTable">
+            <thead>
+              <tr><th>#</th><th>Miqdar</th><th>Tarix</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div class="panel-footer">
+            <button type="button" id="addTermBtn">+ əlavə et</button>
+            <button type="button" id="confirmTermsBtn">Təsdiqlə</button>
+            <button type="button" id="closeTermsBtn">Bağla</button>
+          </div>
+        </div>
+
+        <div class="wide panel-footer">
+          <button id="closeModalBtn">Bağla</button>
+          <button id="saveBtn">Təsdiqlə</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('modal'),
+          openModalBtn = document.getElementById('openModalBtn'),
+          closeModalBtn = document.getElementById('closeModalBtn'),
+          termsBtn = document.getElementById('termsBtn'),
+          termsPanel = document.getElementById('termsPanel'),
+          addTermBtn = document.getElementById('addTermBtn'),
+          confirmTermsBtn = document.getElementById('confirmTermsBtn'),
+          closeTermsBtn = document.getElementById('closeTermsBtn'),
+          termsTbody = document.querySelector('#termsTable tbody'),
+          saveBtn = document.getElementById('saveBtn');
+    let termIdx = 1;
+
+    openModalBtn.onclick = () => modal.classList.add('active');
+    closeModalBtn.onclick = () => modal.classList.remove('active');
+
+    termsBtn.onclick = () => {
+      termsPanel.style.display = termsPanel.style.display === 'block' ? 'none' : 'block';
+    };
+
+    addTermBtn.onclick = () => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${termIdx}</td>
+        <td><input type="number" class="term-amount" min="0"></td>
+        <td><input type="date" class="term-date"></td>
+        <td><button type="button" class="remove-btn">×</button></td>
+      `;
+      termsTbody.appendChild(tr);
+      tr.querySelector('.remove-btn').onclick = () => tr.remove();
+      termIdx++;
+    };
+
+    confirmTermsBtn.onclick = () => {
+      const total = parseFloat(document.getElementById('totalAmount').value) || 0;
+      let sum = 0;
+      document.querySelectorAll('.term-amount').forEach(i => sum += parseFloat(i.value) || 0);
+      if (sum !== total) {
+        alert(`Cəmi ${sum}, Total-a ${total}-ə bərabər olmalıdır.`);
+      } else {
+        termsPanel.style.display = 'none';
+      }
+    };
+
+    closeTermsBtn.onclick = () => termsPanel.style.display = 'none';
+
+    saveBtn.onclick = () => {
+      const total = parseFloat(document.getElementById('totalAmount').value) || 0;
+      let sum = 0;
+      document.querySelectorAll('.term-amount').forEach(i => sum += parseFloat(i.value) || 0);
+      if (termsPanel.style.display === 'block' && sum !== total) {
+        return alert('Ödəniş şərtlərinin cəmi Total-a bərabər olmalıdır.');
+      }
+
+      let payList = [];
+      document.querySelectorAll('#termsTable tbody tr').forEach(tr => {
+        const a = tr.querySelector('.term-amount').value;
+        const d = tr.querySelector('.term-date').value;
+        if (a && d) payList.push(`${a} AZN (${d})`);
+      });
+
+      const vals = {
+        code: 'MQ-' + Math.floor(Math.random() * 10000),
+        date: new Date().toISOString().split('T')[0],
+        rcpt: document.getElementById('receiptDate').value,
+        person: document.getElementById('person').value,
+        company: document.getElementById('company').value,
+        off: document.getElementById('officialCompany').value,
+        type: document.getElementById('contractType').value,
+        pack: document.getElementById('packageType').value,
+        serv: document.getElementById('service').value,
+        note: document.getElementById('note').value,
+        tot: total,
+        terms: payList.join('\n')
+      };
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${vals.code}</td>
+        <td>${vals.date}</td>
+        <td>${vals.rcpt}</td>
+        <td>${vals.person}</td>
+        <td>${vals.company}</td>
+        <td>${vals.off}</td>
+        <td>${vals.type}</td>
+        <td>${vals.pack}</td>
+        <td>${vals.serv}</td>
+        <td>${vals.note}</td>
+        <td>${vals.tot}</td>
+        <td><pre>${vals.terms}</pre></td>
+        <td><button>Düzəliş et</button></td>
+      `;
+      document.getElementById('invoiceTable').appendChild(row);
+
+      document.querySelectorAll('#modal select, #modal input, #modal textarea').forEach(el => el.value = '');
+      termsTbody.innerHTML = '';
+      termIdx = 1;
+      termsPanel.style.display = 'none';
+      modal.classList.remove('active');
+    };
+  </script>
+</body>
+</html>
